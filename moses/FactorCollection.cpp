@@ -20,9 +20,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ***********************************************************************/
 
 #include <boost/version.hpp>
-#ifdef WITH_THREADS
-#include <boost/thread/locks.hpp>
-#endif
 #include <ostream>
 #include <string>
 #include "FactorCollection.h"
@@ -41,15 +38,7 @@ const Factor *FactorCollection::AddFactor(const StringPiece &factorString)
   to_ins.in.m_string = factorString;
   to_ins.in.m_id = m_factorId;
   // If we're threaded, hope a read-only lock is sufficient.
-#ifdef WITH_THREADS
-  {
-    // read=lock scope
-    boost::shared_lock<boost::shared_mutex> read_lock(m_accessLock);
-    Set::const_iterator i = m_set.find(to_ins);
-    if (i != m_set.end()) return &i->in;
-  }
-  boost::unique_lock<boost::shared_mutex> lock(m_accessLock);
-#endif // WITH_THREADS
+
   std::pair<Set::iterator, bool> ret(m_set.insert(to_ins));
   if (ret.second) {
     ret.first->in.m_string.set(
@@ -67,9 +56,6 @@ TO_STRING_BODY(FactorCollection);
 // friend
 ostream& operator<<(ostream& out, const FactorCollection& factorCollection)
 {
-#ifdef WITH_THREADS
-  boost::shared_lock<boost::shared_mutex> lock(factorCollection.m_accessLock);
-#endif
   for (FactorCollection::Set::const_iterator i = factorCollection.m_set.begin(); i != factorCollection.m_set.end(); ++i) {
     out << i->in;
   }
