@@ -21,10 +21,6 @@
 #ifndef moses_OutputCollector_h
 #define moses_OutputCollector_h
 
-#ifdef WITH_THREADS
-#include <boost/thread/mutex.hpp>
-#endif
-
 #ifdef BOOST_HAS_PTHREADS
 #include <pthread.h>
 #endif
@@ -69,9 +65,6 @@ public:
     * Write or cache the output, as appropriate.
     **/
   void Write(int sourceId,const std::string& output,const std::string& debug="") {
-#ifdef WITH_THREADS
-    boost::mutex::scoped_lock lock(m_mutex);
-#endif
     if (sourceId == m_nextOutput) {
       //This is the one we were expecting
       *m_outStream << output << std::flush;

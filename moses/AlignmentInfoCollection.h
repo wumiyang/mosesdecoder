@@ -23,11 +23,6 @@
 
 #include <set>
 
-#ifdef WITH_THREADS
-#include <boost/thread/shared_mutex.hpp>
-#include <boost/thread/locks.hpp>
-#endif
-
 namespace Moses
 {
 
@@ -59,11 +54,6 @@ private:
   ~AlignmentInfoCollection();
 
   static AlignmentInfoCollection s_instance;
-
-#ifdef WITH_THREADS
-  //reader-writer lock
-  mutable boost::shared_mutex m_accessLock;
-#endif
 
   AlignmentInfoSet m_collection;
   const AlignmentInfo *m_emptyAlignmentInfo;
