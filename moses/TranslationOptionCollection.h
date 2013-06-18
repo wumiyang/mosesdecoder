@@ -57,8 +57,19 @@ protected:
   std::vector<const InputLatticeNode*> m_next;
 
 public:
-  InputLatticeNode(const Phrase &phrase, const WordsRange &range);
-  void AddNext(const InputLatticeNode &next);
+  InputLatticeNode(const Phrase &phrase, const WordsRange &range)
+  :m_phrase(phrase)
+  ,m_range(range)
+  {
+  }
+
+  void AddNext(const InputLatticeNode &next)
+  {
+    m_next.push_back(&next);
+  }
+
+  const Phrase &GetPhrase() const
+  { return m_phrase; }
 
 };
 
@@ -86,7 +97,7 @@ protected:
   const size_t				m_maxNoTransOptPerCoverage; /*< maximum number of translation options per input span */
   const float				m_translationOptionThreshold; /*< threshold for translation options with regard to best option for input span */
   std::vector<Phrase*> m_unksrcs;
-  std::vector<const InputLatticeNode*> m_SourcePaths;
+  std::vector<InputLatticeNode*> m_SourcePaths;
 
   TranslationOptionCollection(InputType const& src, size_t maxNoTransOptPerCoverage,
                               float translationOptionThreshold);

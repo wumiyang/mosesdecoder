@@ -39,16 +39,6 @@ using namespace std;
 
 namespace Moses
 {
-InputLatticeNode::InputLatticeNode(const Phrase &phrase, const WordsRange &range)
-:m_phrase(phrase)
-,m_range(range)
-{
-}
-
-void InputLatticeNode::AddNext(const InputLatticeNode &next)
-{
-  m_next.push_back(&next);
-}
 
 /** helper for pruning */
 bool CompareTranslationOption(const TranslationOption *a, const TranslationOption *b)
@@ -598,6 +588,11 @@ const TranslationOptionList &TranslationOptionCollection::GetTranslationOptionLi
 
 void TranslationOptionCollection::GetTargetPhrases()
 {
+	for (size_t i = 0; i < m_SourcePaths.size(); ++i) {
+		InputLatticeNode &node = *m_SourcePaths[i];
+		const Phrase &phrase = node.GetPhrase();
+
+	}
 
 }
 
