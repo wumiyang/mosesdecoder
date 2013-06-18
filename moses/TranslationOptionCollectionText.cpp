@@ -54,13 +54,16 @@ TranslationOptionCollectionText::TranslationOptionCollectionText(Sentence const 
       vec.push_back(node);
     }
   }
-  /*
+
   for (size_t startPos = 0; startPos < size; ++startPos) {
     for (size_t endPos = startPos; endPos < size; ++endPos) {
-      cerr << startPos << "-" << endPos << "=" << GetPhrase(startPos, endPos) << endl;
+      //cerr << startPos << "-" << endPos << "=" << GetPhrase(startPos, endPos) << endl;
+      const InputLatticeNode &node = GetPhrase(startPos, endPos);
+      m_SourcePaths.push_back(&node);
     }
   }
-  */
+
+  GetTargetPhrases();
 }
 
 /* forcibly create translation option for a particular source word.

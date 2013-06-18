@@ -86,6 +86,7 @@ protected:
   const size_t				m_maxNoTransOptPerCoverage; /*< maximum number of translation options per input span */
   const float				m_translationOptionThreshold; /*< threshold for translation options with regard to best option for input span */
   std::vector<Phrase*> m_unksrcs;
+  std::vector<const InputLatticeNode*> m_SourcePaths;
 
   TranslationOptionCollection(InputType const& src, size_t maxNoTransOptPerCoverage,
                               float translationOptionThreshold);
@@ -110,10 +111,9 @@ protected:
 
   //! implemented by inherited class, called by this class
   virtual void ProcessUnknownWord(size_t sourcePos)=0;
-
   void EvaluateWithSource();
-
   void CacheLexReordering();
+  void GetTargetPhrases();
 
 public:
   virtual ~TranslationOptionCollection();

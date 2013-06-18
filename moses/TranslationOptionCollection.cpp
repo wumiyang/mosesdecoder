@@ -596,5 +596,10 @@ const TranslationOptionList &TranslationOptionCollection::GetTranslationOptionLi
   return m_collection[startPos][maxSize];
 }
 
+void TranslationOptionCollection::GetTargetPhrases()
+{
+
+}
+
 }
 
