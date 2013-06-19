@@ -58,18 +58,20 @@ protected:
 
 public:
   InputLatticeNode(const Phrase &phrase, const WordsRange &range)
-  :m_phrase(phrase)
-  ,m_range(range)
-  {
+    :m_phrase(phrase)
+    ,m_range(range) {
   }
 
-  void AddNext(const InputLatticeNode &next)
-  {
+  void AddNext(const InputLatticeNode &next) {
     m_next.push_back(&next);
   }
 
-  const Phrase &GetPhrase() const
-  { return m_phrase; }
+  const Phrase &GetPhrase() const {
+    return m_phrase;
+  }
+  const WordsRange &GetWordsRange() const {
+    return m_range;
+  }
 
 };
 
@@ -97,7 +99,9 @@ protected:
   const size_t				m_maxNoTransOptPerCoverage; /*< maximum number of translation options per input span */
   const float				m_translationOptionThreshold; /*< threshold for translation options with regard to best option for input span */
   std::vector<Phrase*> m_unksrcs;
+
   std::vector<InputLatticeNode*> m_SourcePaths;
+  std::vector< std::vector< std::vector<TranslationOptionList> > >	m_fromPt; /*< contains translation options */
 
   TranslationOptionCollection(InputType const& src, size_t maxNoTransOptPerCoverage,
                               float translationOptionThreshold);
@@ -125,6 +129,11 @@ protected:
   void EvaluateWithSource();
   void CacheLexReordering();
   void GetTargetPhrases();
+  void GetTargetPhrases(const PhraseDictionary &phraseDictionary, size_t indPt);
+  void AddFromPtMatrix();
+  void SetFromPtMatrix(const TargetPhraseCollection *phraseColl,
+		  	  	  	  size_t indPt,
+		  	  	  	  const WordsRange &range);
 
 public:
   virtual ~TranslationOptionCollection();

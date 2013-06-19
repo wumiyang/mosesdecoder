@@ -42,16 +42,16 @@ public:
   void ProcessUnknownWord(size_t sourcePos);
   bool HasXmlOptionsOverlappingRange(size_t startPosition, size_t endPosition) const;
   void CreateXmlOptionsForRange(size_t startPosition, size_t endPosition);
-  const InputLatticeNode &GetPhrase(size_t startPos, size_t endPos) const;
+  InputLatticeNode &GetPhrase(size_t startPos, size_t endPos);
 
 protected:
   std::vector<std::vector<InputLatticeNode> > m_collection;
 
   void CreateTranslationOptionsForRange(const DecodeGraph &decodeStepList
-        , size_t startPosition
-        , size_t endPosition
-        , bool adhereTableLimit
-        , size_t graphInd);
+                                        , size_t startPosition
+                                        , size_t endPosition
+                                        , bool adhereTableLimit
+                                        , size_t graphInd);
 };
 
 }

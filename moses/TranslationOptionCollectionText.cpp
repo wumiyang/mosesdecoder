@@ -47,8 +47,8 @@ TranslationOptionCollectionText::TranslationOptionCollectionText(Sentence const 
       InputLatticeNode node(subphrase, range);
 
       if (range.GetNumWordsCovered() > 1) {
-    	  InputLatticeNode prevNode = GetPhrase(startPos, endPos - 1);
-    	  node.AddNext(prevNode);
+        InputLatticeNode prevNode = GetPhrase(startPos, endPos - 1);
+        node.AddNext(prevNode);
       }
 
       vec.push_back(node);
@@ -58,7 +58,7 @@ TranslationOptionCollectionText::TranslationOptionCollectionText(Sentence const 
   for (size_t startPos = 0; startPos < size; ++startPos) {
     for (size_t endPos = startPos; endPos < size; ++endPos) {
       //cerr << startPos << "-" << endPos << "=" << GetPhrase(startPos, endPos) << endl;
-      const InputLatticeNode &node = GetPhrase(startPos, endPos);
+      InputLatticeNode &node = GetPhrase(startPos, endPos);
       m_SourcePaths.push_back(&node);
     }
   }
@@ -101,7 +101,7 @@ void TranslationOptionCollectionText::CreateXmlOptionsForRange(size_t startPosit
   }
 }
 
-const InputLatticeNode &TranslationOptionCollectionText::GetPhrase(size_t startPos, size_t endPos) const
+InputLatticeNode &TranslationOptionCollectionText::GetPhrase(size_t startPos, size_t endPos)
 {
   size_t offset = endPos - startPos;
   CHECK(offset < m_collection[startPos].size());
