@@ -154,10 +154,10 @@ void TranslationOptionCollectionText::CreateTranslationOptionsForRange(
 
       const std::vector<std::vector<const TargetPhraseCollection*> > &matrix = m_targetPhrasesfromPt[phraseDict];
       static_cast<const DecodeStepTranslation&>(decodeStep).ProcessInitialTranslation
-    		  	  	  (matrix,
-    		  	  	  *oldPtoc,
-    		  	  	  wordsRange,
-    		  	  	  adhereTableLimit );
+      (matrix,
+       *oldPtoc,
+       wordsRange,
+       adhereTableLimit );
 
       // do rest of decode steps
       int indexStep = 1;
@@ -173,15 +173,26 @@ void TranslationOptionCollectionText::CreateTranslationOptionsForRange(
           TranslationOption &inputPartialTranslOpt = **iterPartialTranslOpt;
 
           if (const DecodeStepTranslation *transStep = dynamic_cast<const DecodeStepTranslation*>(&decodeStep)) {
+            // translation
+            const PhraseDictionary *phraseDict = decodeStep.GetPhraseDictionaryFeature();
+            const std::vector<std::vector<const TargetPhraseCollection*> > &matrix = m_targetPhrasesfromPt[phraseDict];
 
+            transStep->Process(inputPartialTranslOpt
+                               , decodeStep
+                               , *newPtoc
+                               , this
+                               , adhereTableLimit
+                               , *sourcePhrase
+                               , matrix);
+          } else {
+            // generation
+            decodeStep.Process(inputPartialTranslOpt
+                               , decodeStep
+                               , *newPtoc
+                               , this
+                               , adhereTableLimit
+                               , *sourcePhrase);
           }
-
-          decodeStep.Process(inputPartialTranslOpt
-                             , decodeStep
-                             , *newPtoc
-                             , this
-                             , adhereTableLimit
-                             , *sourcePhrase);
         }
 
         // last but 1 partial trans not required anymore

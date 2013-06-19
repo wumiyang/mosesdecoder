@@ -40,13 +40,20 @@ public:
                         const DecodeStep* prev,
                         const std::vector<FeatureFunction*> &features);
 
+  void Process(const TranslationOption &inputPartialTranslOpt
+               , const DecodeStep &decodeStep
+               , PartialTranslOptColl &outputPartialTranslOptColl
+               , TranslationOptionCollection *toc
+               , bool adhereTableLimit
+               , const Phrase &src) const;
+  void Process(const TranslationOption &inputPartialTranslOpt
+               , const DecodeStep &decodeStep
+               , PartialTranslOptColl &outputPartialTranslOptColl
+               , TranslationOptionCollection *toc
+               , bool adhereTableLimit
+               , const Phrase &src
+               , const std::vector< std::vector<const TargetPhraseCollection*> > &targetPhraseMatrix) const;
 
-  virtual void Process(const TranslationOption &inputPartialTranslOpt
-                       , const DecodeStep &decodeStep
-                       , PartialTranslOptColl &outputPartialTranslOptColl
-                       , TranslationOptionCollection *toc
-                       , bool adhereTableLimit
-                       , const Phrase &src) const;
 
 
   /*! initialize list of partial translation options by applying the first translation step

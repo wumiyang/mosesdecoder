@@ -102,7 +102,7 @@ protected:
 
   std::vector<InputLatticeNode*> m_SourcePaths;
   std::map<const PhraseDictionary*,
-  	  	  std::vector< std::vector<const TargetPhraseCollection*> > >	m_targetPhrasesfromPt; /*< contains translation options */
+      std::vector< std::vector<const TargetPhraseCollection*> > >	m_targetPhrasesfromPt; /*< contains translation options */
 
   TranslationOptionCollection(InputType const& src, size_t maxNoTransOptPerCoverage,
                               float translationOptionThreshold);
@@ -133,8 +133,8 @@ protected:
   void GetTargetPhrases(const PhraseDictionary &phraseDictionary, size_t indPt);
   void AddTargetPhraseFromPtMatrix(const PhraseDictionary &phraseDictionary);
   void SetTargetPhraseFromPtMatrix(const TargetPhraseCollection *phraseColl,
-		  	  	  	   const PhraseDictionary &phraseDictionary,
-                       const WordsRange &range);
+                                   const PhraseDictionary &phraseDictionary,
+                                   const WordsRange &range);
 
 public:
   virtual ~TranslationOptionCollection();

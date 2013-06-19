@@ -594,7 +594,7 @@ void TranslationOptionCollection::AddTargetPhraseFromPtMatrix(const PhraseDictio
 
   std::vector< std::vector<const TargetPhraseCollection*> > temp;
   std::vector< std::vector<const TargetPhraseCollection*> > &matrix
-  	  = m_targetPhrasesfromPt[&phraseDictionary] = temp;
+  = m_targetPhrasesfromPt[&phraseDictionary] = temp;
 
   for (size_t startPos = 0 ; startPos < size ; ++startPos) {
     matrix.push_back( vector<const TargetPhraseCollection*>() );
@@ -622,7 +622,7 @@ void TranslationOptionCollection::GetTargetPhrases()
       const DecodeStepTranslation *transStep = dynamic_cast<const DecodeStepTranslation *>(&decodeStep);
       if (transStep) {
         const PhraseDictionary &phraseDictionary = *transStep->GetPhraseDictionaryFeature();
-    	AddTargetPhraseFromPtMatrix(phraseDictionary);
+        AddTargetPhraseFromPtMatrix(phraseDictionary);
         GetTargetPhrases(phraseDictionary, indPt);
         ++indPt;
       }
@@ -642,7 +642,7 @@ void TranslationOptionCollection::GetTargetPhrases(const PhraseDictionary &phras
 }
 
 void TranslationOptionCollection::SetTargetPhraseFromPtMatrix(const TargetPhraseCollection *phraseColl,
-	const PhraseDictionary &phraseDictionary,
+    const PhraseDictionary &phraseDictionary,
     const WordsRange &range)
 {
   //cerr << range.GetStartPos() << " " << range.GetEndPos() << endl;
