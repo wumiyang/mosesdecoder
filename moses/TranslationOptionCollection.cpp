@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <algorithm>
 #include <typeinfo>
+#include <cassert>
 #include "TranslationOptionCollection.h"
 #include "Sentence.h"
 #include "DecodeStep.h"
@@ -599,8 +600,8 @@ void TranslationOptionCollection::AddFromPtMatrix()
     matrix.push_back( vector<const TargetPhraseCollection*>() );
 
     size_t maxSize = size - startPos;
-    size_t maxSizePhrase = StaticData::Instance().GetMaxPhraseLength();
-    maxSize = std::min(maxSize, maxSizePhrase);
+    //size_t maxSizePhrase = StaticData::Instance().GetMaxPhraseLength();
+    //maxSize = std::min(maxSize, maxSizePhrase);
 
     for (size_t endPos = 0 ; endPos < maxSize ; ++endPos) {
       matrix[startPos].push_back( NULL );
@@ -635,10 +636,8 @@ void TranslationOptionCollection::GetTargetPhrases(const PhraseDictionary &phras
     InputLatticeNode &node = *m_SourcePaths[i];
     const Phrase &phrase = node.GetPhrase();
     const WordsRange &range = node.GetWordsRange();
-    const TargetPhraseCollection *phraseColl=
-      phraseDictionary.GetTargetPhraseCollection(phrase);
-    //SetFromPtMatrix(phraseColl, indPt, range);
-
+    const TargetPhraseCollection *phraseColl = phraseDictionary.GetTargetPhraseCollection(phrase);
+    SetFromPtMatrix(phraseColl, indPt, range);
   }
 }
 
@@ -646,8 +645,19 @@ void TranslationOptionCollection::SetFromPtMatrix(const TargetPhraseCollection *
     size_t indPt,
     const WordsRange &range)
 {
+  cerr << range.GetStartPos() << " " << range.GetEndPos() << endl;
+
+  assert(range.GetEndPos() >=range.GetStartPos());
   size_t offset = range.GetEndPos() - range.GetStartPos();
-  m_fromPt[indPt][range.GetStartPos()][offset] = phraseColl;
+
+  assert(indPt < m_fromPt.size());
+  std::vector< std::vector<const TargetPhraseCollection*> > &outer = m_fromPt[indPt];
+
+  assert(range.GetStartPos() < outer.size());
+  std::vector<const TargetPhraseCollection*> &inner = outer[range.GetStartPos()];
+
+  assert(offset < inner.size());
+  inner[offset] = phraseColl;
 }
 
 } // namespace
