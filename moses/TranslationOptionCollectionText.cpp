@@ -62,8 +62,6 @@ TranslationOptionCollectionText::TranslationOptionCollectionText(Sentence const 
       m_SourcePaths.push_back(&node);
     }
   }
-
-  GetTargetPhrases();
 }
 
 /* forcibly create translation option for a particular source word.

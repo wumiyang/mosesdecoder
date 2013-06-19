@@ -365,6 +365,8 @@ void TranslationOptionCollection::CreateTranslationOptions()
   // for all phrases
   const StaticData &staticData = StaticData::Instance();
 
+  GetTargetPhrases();
+
   // there may be multiple decoding graphs (factorizations of decoding)
   const vector <DecodeGraph*> &decodeGraphList = StaticData::Instance().GetDecodeGraphs();
   const vector <size_t> &decodeGraphBackoff = StaticData::Instance().GetDecodeGraphBackoff();
@@ -633,8 +635,6 @@ void TranslationOptionCollection::GetTargetPhrases(const PhraseDictionary &phras
     InputLatticeNode &node = *m_SourcePaths[i];
     const Phrase &phrase = node.GetPhrase();
     const WordsRange &range = node.GetWordsRange();
-
-
     const TargetPhraseCollection *phraseColl=
       phraseDictionary.GetTargetPhraseCollection(phrase);
     //SetFromPtMatrix(phraseColl, indPt, range);
