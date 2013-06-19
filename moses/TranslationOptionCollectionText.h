@@ -46,7 +46,6 @@ public:
 
 protected:
   std::vector<std::vector<InputLatticeNode> > m_collection;
-  size_t m_currTransStep;
 
   void CreateTranslationOptions();
   void CreateTranslationOptionsForRange(const DecodeGraph &decodeStepList

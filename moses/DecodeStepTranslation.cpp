@@ -100,7 +100,6 @@ void DecodeStepTranslation::Process(const TranslationOption &inputPartialTranslO
   }
 }
 
-
 void DecodeStepTranslation::ProcessInitialTranslation(
   const InputType &source
   ,PartialTranslOptColl &outputPartialTranslOptColl
@@ -126,6 +125,43 @@ void DecodeStepTranslation::ProcessInitialTranslation(
     for (iterTargetPhrase = phraseColl->begin() ; iterTargetPhrase != iterEnd ; ++iterTargetPhrase) {
       const TargetPhrase	&targetPhrase = **iterTargetPhrase;
       TranslationOption *transOpt = new TranslationOption(wordsRange, targetPhrase);
+
+      outputPartialTranslOptColl.Add (transOpt);
+
+      VERBOSE(3,"\t" << targetPhrase << "\n");
+    }
+    VERBOSE(3,std::endl);
+  }
+}
+
+void DecodeStepTranslation::ProcessInitialTranslation(
+  const std::vector< std::vector<const TargetPhraseCollection*> > &targetPhraseMatrix
+  , PartialTranslOptColl &outputPartialTranslOptColl
+  , const WordsRange &range, bool adhereTableLimit) const
+{
+  const PhraseDictionary* phraseDictionary = GetPhraseDictionaryFeature();
+  const size_t tableLimit = phraseDictionary->GetTableLimit();
+
+  //cerr << range.GetStartPos() << " " << range.GetEndPos() << endl;
+
+  assert(range.GetEndPos() >=range.GetStartPos());
+  size_t offset = range.GetEndPos() - range.GetStartPos();
+
+  assert(range.GetStartPos() < targetPhraseMatrix.size());
+  const std::vector<const TargetPhraseCollection*> &inner = targetPhraseMatrix[range.GetStartPos()];
+
+  assert(offset < inner.size());
+  const TargetPhraseCollection *phraseColl = inner[offset];
+
+  if (phraseColl != NULL) {
+	VERBOSE(3, "[" << range.GetStartPos() << "-" << range.GetEndPos() << "]" << std::endl);
+
+    TargetPhraseCollection::const_iterator iterTargetPhrase, iterEnd;
+    iterEnd = (!adhereTableLimit || tableLimit == 0 || phraseColl->GetSize() < tableLimit) ? phraseColl->end() : phraseColl->begin() + tableLimit;
+
+    for (iterTargetPhrase = phraseColl->begin() ; iterTargetPhrase != iterEnd ; ++iterTargetPhrase) {
+      const TargetPhrase	&targetPhrase = **iterTargetPhrase;
+      TranslationOption *transOpt = new TranslationOption(range, targetPhrase);
 
       outputPartialTranslOptColl.Add (transOpt);
 

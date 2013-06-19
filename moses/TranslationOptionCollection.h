@@ -101,7 +101,8 @@ protected:
   std::vector<Phrase*> m_unksrcs;
 
   std::vector<InputLatticeNode*> m_SourcePaths;
-  std::vector< std::vector< std::vector<const TargetPhraseCollection*> > >	m_targetPhrasesfromPt; /*< contains translation options */
+  std::map<const PhraseDictionary*,
+  	  	  std::vector< std::vector<const TargetPhraseCollection*> > >	m_targetPhrasesfromPt; /*< contains translation options */
 
   TranslationOptionCollection(InputType const& src, size_t maxNoTransOptPerCoverage,
                               float translationOptionThreshold);
@@ -130,9 +131,9 @@ protected:
   void CacheLexReordering();
   void GetTargetPhrases();
   void GetTargetPhrases(const PhraseDictionary &phraseDictionary, size_t indPt);
-  void AddTargetPhraseFromPtMatrix();
+  void AddTargetPhraseFromPtMatrix(const PhraseDictionary &phraseDictionary);
   void SetTargetPhraseFromPtMatrix(const TargetPhraseCollection *phraseColl,
-                       size_t indPt,
+		  	  	  	   const PhraseDictionary &phraseDictionary,
                        const WordsRange &range);
 
 public:

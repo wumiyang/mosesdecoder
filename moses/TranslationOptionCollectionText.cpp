@@ -109,8 +109,6 @@ InputLatticeNode &TranslationOptionCollectionText::GetPhrase(size_t startPos, si
 void TranslationOptionCollectionText::CreateTranslationOptions()
 {
   GetTargetPhrases();
-
-  m_currTransStep = 0;
   TranslationOptionCollection::CreateTranslationOptions();
 }
 
@@ -147,16 +145,19 @@ void TranslationOptionCollectionText::CreateTranslationOptionsForRange(
       // partial trans opt stored in here
       PartialTranslOptColl* oldPtoc = new PartialTranslOptColl;
       size_t totalEarlyPruned = 0;
+      const WordsRange wordsRange(startPos, endPos);
 
       // initial translation step
       list <const DecodeStep* >::const_iterator iterStep = decodeGraph.begin();
       const DecodeStep &decodeStep = **iterStep;
+      const PhraseDictionary *phraseDict = decodeStep.GetPhraseDictionaryFeature();
 
+      const std::vector<std::vector<const TargetPhraseCollection*> > &matrix = m_targetPhrasesfromPt[phraseDict];
       static_cast<const DecodeStepTranslation&>(decodeStep).ProcessInitialTranslation
-      (m_source, *oldPtoc
-       , startPos, endPos, adhereTableLimit );
-
-      ++m_currTransStep;
+    		  	  	  (matrix,
+    		  	  	  *oldPtoc,
+    		  	  	  wordsRange,
+    		  	  	  adhereTableLimit );
 
       // do rest of decode steps
       int indexStep = 1;
@@ -172,7 +173,7 @@ void TranslationOptionCollectionText::CreateTranslationOptionsForRange(
           TranslationOption &inputPartialTranslOpt = **iterPartialTranslOpt;
 
           if (const DecodeStepTranslation *transStep = dynamic_cast<const DecodeStepTranslation*>(&decodeStep)) {
-          	++m_currTransStep;
+
           }
 
           decodeStep.Process(inputPartialTranslOpt
