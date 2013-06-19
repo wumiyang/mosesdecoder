@@ -101,7 +101,7 @@ protected:
   std::vector<Phrase*> m_unksrcs;
 
   std::vector<InputLatticeNode*> m_SourcePaths;
-  std::vector< std::vector< std::vector<TranslationOptionList> > >	m_fromPt; /*< contains translation options */
+  std::vector< std::vector< std::vector<const TargetPhraseCollection*> > >	m_fromPt; /*< contains translation options */
 
   TranslationOptionCollection(InputType const& src, size_t maxNoTransOptPerCoverage,
                               float translationOptionThreshold);
@@ -132,8 +132,8 @@ protected:
   void GetTargetPhrases(const PhraseDictionary &phraseDictionary, size_t indPt);
   void AddFromPtMatrix();
   void SetFromPtMatrix(const TargetPhraseCollection *phraseColl,
-		  	  	  	  size_t indPt,
-		  	  	  	  const WordsRange &range);
+                       size_t indPt,
+                       const WordsRange &range);
 
 public:
   virtual ~TranslationOptionCollection();

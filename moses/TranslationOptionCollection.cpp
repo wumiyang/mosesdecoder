@@ -586,6 +586,26 @@ const TranslationOptionList &TranslationOptionCollection::GetTranslationOptionLi
   return m_collection[startPos][maxSize];
 }
 
+void TranslationOptionCollection::AddFromPtMatrix()
+{
+  // create 2-d vector
+  size_t size = m_source.GetSize();
+  m_fromPt.push_back(std::vector< std::vector<const TargetPhraseCollection*> >());
+  std::vector< std::vector<const TargetPhraseCollection*> > &matrix = m_fromPt.back();
+
+  for (size_t startPos = 0 ; startPos < size ; ++startPos) {
+    matrix.push_back( vector<const TargetPhraseCollection*>() );
+
+    size_t maxSize = size - startPos;
+    size_t maxSizePhrase = StaticData::Instance().GetMaxPhraseLength();
+    maxSize = std::min(maxSize, maxSizePhrase);
+
+    for (size_t endPos = 0 ; endPos < maxSize ; ++endPos) {
+      matrix[startPos].push_back( NULL );
+    }
+  }
+}
+
 void TranslationOptionCollection::GetTargetPhrases()
 {
   size_t indPt = 0;
@@ -598,10 +618,10 @@ void TranslationOptionCollection::GetTargetPhrases()
       const DecodeStep &decodeStep = **iterStep;
       const DecodeStepTranslation *transStep = dynamic_cast<const DecodeStepTranslation *>(&decodeStep);
       if (transStep) {
-    	  AddFromPtMatrix();
-    	  const PhraseDictionary &phraseDictionary = *transStep->GetPhraseDictionaryFeature();
-    	  GetTargetPhrases(phraseDictionary, indPt);
-    	  ++indPt;
+        AddFromPtMatrix();
+        const PhraseDictionary &phraseDictionary = *transStep->GetPhraseDictionaryFeature();
+        GetTargetPhrases(phraseDictionary, indPt);
+        ++indPt;
       }
     }
   }
@@ -610,41 +630,24 @@ void TranslationOptionCollection::GetTargetPhrases()
 void TranslationOptionCollection::GetTargetPhrases(const PhraseDictionary &phraseDictionary, size_t indPt)
 {
   for (size_t i = 0; i < m_SourcePaths.size(); ++i) {
-	InputLatticeNode &node = *m_SourcePaths[i];
-	const Phrase &phrase = node.GetPhrase();
-	const WordsRange &range = node.GetWordsRange();
+    InputLatticeNode &node = *m_SourcePaths[i];
+    const Phrase &phrase = node.GetPhrase();
+    const WordsRange &range = node.GetWordsRange();
 
+    /*
     const TargetPhraseCollection *phraseColl=
-	    phraseDictionary.GetTargetPhraseCollection(phrase);
-	SetFromPtMatrix(phraseColl, indPt, range);
-  }
-}
-
-void TranslationOptionCollection::AddFromPtMatrix()
-{
-  // create 2-d vector
-  size_t size = m_source.GetSize();
-  m_fromPt.push_back(std::vector< std::vector<TranslationOptionList> >());
-  std::vector< std::vector<TranslationOptionList> > &matrix =m_fromPt.back();
-
-  for (size_t startPos = 0 ; startPos < size ; ++startPos) {
-	matrix.push_back( vector< TranslationOptionList >() );
-
-	size_t maxSize = size - startPos;
-	size_t maxSizePhrase = StaticData::Instance().GetMaxPhraseLength();
-	maxSize = std::min(maxSize, maxSizePhrase);
-
-	for (size_t endPos = 0 ; endPos < maxSize ; ++endPos) {
-		matrix[startPos].push_back( TranslationOptionList() );
-	}
+      phraseDictionary.GetTargetPhraseCollection(phrase);
+    SetFromPtMatrix(phraseColl, indPt, range);
+    */
   }
 }
 
 void TranslationOptionCollection::SetFromPtMatrix(const TargetPhraseCollection *phraseColl,
-												size_t indPt,
-												const WordsRange &range)
+    size_t indPt,
+    const WordsRange &range)
 {
-
+  size_t offset = range.GetEndPos() - range.GetStartPos();
+  m_fromPt[indPt][range.GetStartPos()][offset] = phraseColl;
 }
 
 } // namespace
