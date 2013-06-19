@@ -366,8 +366,6 @@ void TranslationOptionCollection::CreateTranslationOptions()
   // for all phrases
   const StaticData &staticData = StaticData::Instance();
 
-  GetTargetPhrases();
-
   // there may be multiple decoding graphs (factorizations of decoding)
   const vector <DecodeGraph*> &decodeGraphList = StaticData::Instance().GetDecodeGraphs();
   const vector <size_t> &decodeGraphBackoff = StaticData::Instance().GetDecodeGraphBackoff();

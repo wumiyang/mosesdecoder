@@ -106,6 +106,14 @@ InputLatticeNode &TranslationOptionCollectionText::GetPhrase(size_t startPos, si
   return m_collection[startPos][offset];
 }
 
+void TranslationOptionCollectionText::CreateTranslationOptions()
+{
+  GetTargetPhrases();
+
+  m_currTransStep = 0;
+  TranslationOptionCollection::CreateTranslationOptions();
+}
+
 void TranslationOptionCollectionText::CreateTranslationOptionsForRange(
   const DecodeGraph &decodeGraph
   , size_t startPos
@@ -148,6 +156,8 @@ void TranslationOptionCollectionText::CreateTranslationOptionsForRange(
       (m_source, *oldPtoc
        , startPos, endPos, adhereTableLimit );
 
+      ++m_currTransStep;
+
       // do rest of decode steps
       int indexStep = 1;
 
@@ -160,6 +170,10 @@ void TranslationOptionCollectionText::CreateTranslationOptionsForRange(
         vector<TranslationOption*>::const_iterator iterPartialTranslOpt;
         for (iterPartialTranslOpt = partTransOptList.begin() ; iterPartialTranslOpt != partTransOptList.end() ; ++iterPartialTranslOpt) {
           TranslationOption &inputPartialTranslOpt = **iterPartialTranslOpt;
+
+          if (const DecodeStepTranslation *transStep = dynamic_cast<const DecodeStepTranslation*>(&decodeStep)) {
+          	++m_currTransStep;
+          }
 
           decodeStep.Process(inputPartialTranslOpt
                              , decodeStep
