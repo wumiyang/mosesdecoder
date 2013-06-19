@@ -589,12 +589,12 @@ const TranslationOptionList &TranslationOptionCollection::GetTranslationOptionLi
   return m_collection[startPos][maxSize];
 }
 
-void TranslationOptionCollection::AddFromPtMatrix()
+void TranslationOptionCollection::AddTargetPhraseFromPtMatrix()
 {
   // create 2-d vector
   size_t size = m_source.GetSize();
-  m_fromPt.push_back(std::vector< std::vector<const TargetPhraseCollection*> >());
-  std::vector< std::vector<const TargetPhraseCollection*> > &matrix = m_fromPt.back();
+  m_targetPhrasesfromPt.push_back(std::vector< std::vector<const TargetPhraseCollection*> >());
+  std::vector< std::vector<const TargetPhraseCollection*> > &matrix = m_targetPhrasesfromPt.back();
 
   for (size_t startPos = 0 ; startPos < size ; ++startPos) {
     matrix.push_back( vector<const TargetPhraseCollection*>() );
@@ -621,7 +621,7 @@ void TranslationOptionCollection::GetTargetPhrases()
       const DecodeStep &decodeStep = **iterStep;
       const DecodeStepTranslation *transStep = dynamic_cast<const DecodeStepTranslation *>(&decodeStep);
       if (transStep) {
-        AddFromPtMatrix();
+    	AddTargetPhraseFromPtMatrix();
         const PhraseDictionary &phraseDictionary = *transStep->GetPhraseDictionaryFeature();
         GetTargetPhrases(phraseDictionary, indPt);
         ++indPt;
@@ -637,21 +637,21 @@ void TranslationOptionCollection::GetTargetPhrases(const PhraseDictionary &phras
     const Phrase &phrase = node.GetPhrase();
     const WordsRange &range = node.GetWordsRange();
     const TargetPhraseCollection *phraseColl = phraseDictionary.GetTargetPhraseCollection(phrase);
-    SetFromPtMatrix(phraseColl, indPt, range);
+    SetTargetPhraseFromPtMatrix(phraseColl, indPt, range);
   }
 }
 
-void TranslationOptionCollection::SetFromPtMatrix(const TargetPhraseCollection *phraseColl,
+void TranslationOptionCollection::SetTargetPhraseFromPtMatrix(const TargetPhraseCollection *phraseColl,
     size_t indPt,
     const WordsRange &range)
 {
-  cerr << range.GetStartPos() << " " << range.GetEndPos() << endl;
+  //cerr << range.GetStartPos() << " " << range.GetEndPos() << endl;
 
   assert(range.GetEndPos() >=range.GetStartPos());
   size_t offset = range.GetEndPos() - range.GetStartPos();
 
-  assert(indPt < m_fromPt.size());
-  std::vector< std::vector<const TargetPhraseCollection*> > &outer = m_fromPt[indPt];
+  assert(indPt < m_targetPhrasesfromPt.size());
+  std::vector< std::vector<const TargetPhraseCollection*> > &outer = m_targetPhrasesfromPt[indPt];
 
   assert(range.GetStartPos() < outer.size());
   std::vector<const TargetPhraseCollection*> &inner = outer[range.GetStartPos()];
