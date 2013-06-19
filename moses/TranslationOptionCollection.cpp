@@ -634,11 +634,11 @@ void TranslationOptionCollection::GetTargetPhrases(const PhraseDictionary &phras
     const Phrase &phrase = node.GetPhrase();
     const WordsRange &range = node.GetWordsRange();
 
-    /*
+
     const TargetPhraseCollection *phraseColl=
       phraseDictionary.GetTargetPhraseCollection(phrase);
-    SetFromPtMatrix(phraseColl, indPt, range);
-    */
+    //SetFromPtMatrix(phraseColl, indPt, range);
+
   }
 }
 
