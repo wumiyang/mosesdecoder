@@ -124,12 +124,13 @@ protected:
   virtual void ProcessUnknownWord(size_t sourcePos)=0;
   void EvaluateWithSource();
   void CacheLexReordering();
-  void GetTargetPhrases();
-  void GetTargetPhrases(const PhraseDictionary &phraseDictionary, size_t indPt);
-  void AddTargetPhraseFromPtMatrix(const PhraseDictionary &phraseDictionary);
+  void SetTargetPhraseFromPtMatrix();
+  void SetTargetPhraseFromPtMatrix(const PhraseDictionary &phraseDictionary);
   void SetTargetPhraseFromPtMatrix(const TargetPhraseCollection *phraseColl,
                                    const PhraseDictionary &phraseDictionary,
                                    const WordsRange &range);
+  void AddTargetPhraseFromPtMatrix(const PhraseDictionary &phraseDictionary);
+  const TargetPhraseCollection *GetTargetPhraseFromPtMatrix(const PhraseDictionary &phraseDictionary, const WordsRange &range) const;
 
 public:
   virtual ~TranslationOptionCollection();

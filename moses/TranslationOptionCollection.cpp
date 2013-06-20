@@ -608,9 +608,8 @@ void TranslationOptionCollection::AddTargetPhraseFromPtMatrix(const PhraseDictio
   }
 }
 
-void TranslationOptionCollection::GetTargetPhrases()
+void TranslationOptionCollection::SetTargetPhraseFromPtMatrix()
 {
-  size_t indPt = 0;
   const vector <DecodeGraph*> &decodeGraphList = StaticData::Instance().GetDecodeGraphs();
   for (size_t graphInd = 0 ; graphInd < decodeGraphList.size() ; graphInd++) {
     const DecodeGraph &decodeGraph = *decodeGraphList[graphInd];
@@ -622,21 +621,33 @@ void TranslationOptionCollection::GetTargetPhrases()
       if (transStep) {
         const PhraseDictionary &phraseDictionary = *transStep->GetPhraseDictionaryFeature();
         AddTargetPhraseFromPtMatrix(phraseDictionary);
-        GetTargetPhrases(phraseDictionary, indPt);
-        ++indPt;
+        SetTargetPhraseFromPtMatrix(phraseDictionary);
       }
     }
   }
 }
 
-void TranslationOptionCollection::GetTargetPhrases(const PhraseDictionary &phraseDictionary, size_t indPt)
+void TranslationOptionCollection::SetTargetPhraseFromPtMatrix(const PhraseDictionary &phraseDictionary)
 {
   for (size_t i = 0; i < m_SourcePaths.size(); ++i) {
     InputLatticeNode &node = *m_SourcePaths[i];
-    const Phrase &phrase = node.GetPhrase();
     const WordsRange &range = node.GetWordsRange();
-    const TargetPhraseCollection *phraseColl = phraseDictionary.GetTargetPhraseCollection(phrase);
-    SetTargetPhraseFromPtMatrix(phraseColl, phraseDictionary, range);
+
+    bool doIt = true;
+    if (range.GetNumWordsCovered() > 1) {
+      WordsRange prevRange(range.GetStartPos(), range.GetEndPos() - 1);
+      const TargetPhraseCollection *targetPhrases = GetTargetPhraseFromPtMatrix(phraseDictionary, prevRange);
+      if (targetPhrases == NULL) {
+        doIt = false;
+      }
+    }
+
+    doIt = true;
+    if (doIt) {
+      const Phrase &phrase = node.GetPhrase();
+      const TargetPhraseCollection *phraseColl = phraseDictionary.GetTargetPhraseCollection(phrase);
+      SetTargetPhraseFromPtMatrix(phraseColl, phraseDictionary, range);
+    }
   }
 }
 
@@ -658,5 +669,23 @@ void TranslationOptionCollection::SetTargetPhraseFromPtMatrix(const TargetPhrase
   inner[offset] = phraseColl;
 }
 
+const TargetPhraseCollection *TranslationOptionCollection::GetTargetPhraseFromPtMatrix(const PhraseDictionary &phraseDictionary, const WordsRange &range) const
+{
+  //cerr << range.GetStartPos() << " " << range.GetEndPos() << endl;
+
+  assert(range.GetEndPos() >=range.GetStartPos());
+  size_t offset = range.GetEndPos() - range.GetStartPos();
+
+  std::map<const PhraseDictionary*, std::vector< std::vector<const TargetPhraseCollection*> > >::const_iterator iterOuter;
+  iterOuter = m_targetPhrasesfromPt.find(&phraseDictionary);
+  CHECK(iterOuter != m_targetPhrasesfromPt.end());
+  const std::vector< std::vector<const TargetPhraseCollection*> > &outer = iterOuter->second;
+
+  assert(range.GetStartPos() < outer.size());
+  const std::vector<const TargetPhraseCollection*> &inner = outer[range.GetStartPos()];
+
+  assert(offset < inner.size());
+  return inner[offset];
+}
 } // namespace
 
