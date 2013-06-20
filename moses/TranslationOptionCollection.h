@@ -54,16 +54,11 @@ class InputLatticeNode
 protected:
   Phrase m_phrase;
   WordsRange m_range;
-  std::vector<const InputLatticeNode*> m_next;
 
 public:
   InputLatticeNode(const Phrase &phrase, const WordsRange &range)
     :m_phrase(phrase)
     ,m_range(range) {
-  }
-
-  void AddNext(const InputLatticeNode &next) {
-    m_next.push_back(&next);
   }
 
   const Phrase &GetPhrase() const {

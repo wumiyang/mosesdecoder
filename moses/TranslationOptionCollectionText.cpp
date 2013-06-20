@@ -46,20 +46,16 @@ TranslationOptionCollectionText::TranslationOptionCollectionText(Sentence const 
       WordsRange range(startPos, endPos);
       InputLatticeNode node(subphrase, range);
 
-      if (range.GetNumWordsCovered() > 1) {
-        InputLatticeNode prevNode = GetPhrase(startPos, endPos - 1);
-        node.AddNext(prevNode);
-      }
-
       vec.push_back(node);
     }
   }
 
-  for (size_t startPos = 0; startPos < size; ++startPos) {
-    for (size_t endPos = startPos; endPos < size; ++endPos) {
-      //cerr << startPos << "-" << endPos << "=" << GetPhrase(startPos, endPos) << endl;
-      InputLatticeNode &node = GetPhrase(startPos, endPos);
-      m_SourcePaths.push_back(&node);
+  for (size_t phaseSize = 1; phaseSize <= size; ++phaseSize) {
+    for (size_t startPos = 0; startPos < size - phaseSize + 1; ++startPos) {
+  	  size_t endPos = startPos + phaseSize -1;
+	  //cerr << startPos << "-" << endPos << "=" << GetPhrase(startPos, endPos) << endl;
+  	  InputLatticeNode &node = GetPhrase(startPos, endPos);
+	  m_SourcePaths.push_back(&node);
     }
   }
 }
