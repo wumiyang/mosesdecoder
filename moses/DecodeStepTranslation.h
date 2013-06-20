@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define moses_DecodeStepTranslation_h
 
 #include "DecodeStep.h"
+#include "TranslationOptionCollection.h"
 #include "moses/TranslationModel/PhraseDictionary.h"
 
 namespace Moses
@@ -52,7 +53,7 @@ public:
                , TranslationOptionCollection *toc
                , bool adhereTableLimit
                , const Phrase &src
-               , const std::vector< std::vector<const TargetPhraseCollection*> > &targetPhraseMatrix) const;
+               , const TranslationOptionCollection::TargetPhraseMatrix &targetPhraseMatrix) const;
 
 
 
@@ -61,7 +62,7 @@ public:
   void ProcessInitialTranslation(const InputType &source
                                  , PartialTranslOptColl &outputPartialTranslOptColl
                                  , size_t startPos, size_t endPos, bool adhereTableLimit) const;
-  void ProcessInitialTranslation(const std::vector< std::vector<const TargetPhraseCollection*> > &targetPhraseMatrix
+  void ProcessInitialTranslation(const TranslationOptionCollection::TargetPhraseMatrix &targetPhraseMatrix
                                  , PartialTranslOptColl &outputPartialTranslOptColl
                                  , const WordsRange &range, bool adhereTableLimit) const;
 

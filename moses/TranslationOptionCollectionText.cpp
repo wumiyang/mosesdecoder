@@ -148,7 +148,7 @@ void TranslationOptionCollectionText::CreateTranslationOptionsForRange(
       const DecodeStep &decodeStep = **iterStep;
       const PhraseDictionary *phraseDict = decodeStep.GetPhraseDictionaryFeature();
 
-      const std::vector<std::vector<const TargetPhraseCollection*> > &matrix = m_targetPhrasesfromPt[phraseDict];
+      const TargetPhraseMatrix &matrix = m_targetPhrasesfromPt[phraseDict];
       static_cast<const DecodeStepTranslation&>(decodeStep).ProcessInitialTranslation
       (matrix,
        *oldPtoc,
@@ -171,7 +171,7 @@ void TranslationOptionCollectionText::CreateTranslationOptionsForRange(
           if (const DecodeStepTranslation *transStep = dynamic_cast<const DecodeStepTranslation*>(&decodeStep)) {
             // translation
             const PhraseDictionary *phraseDict = decodeStep.GetPhraseDictionaryFeature();
-            const std::vector<std::vector<const TargetPhraseCollection*> > &matrix = m_targetPhrasesfromPt[phraseDict];
+            const TargetPhraseMatrix &matrix = m_targetPhrasesfromPt[phraseDict];
 
             transStep->Process(inputPartialTranslOpt
                                , decodeStep

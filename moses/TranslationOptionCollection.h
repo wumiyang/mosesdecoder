@@ -57,7 +57,9 @@ protected:
   const TargetPhraseCollection *m_targetPhrases;
 
 public:
-  InputLatticeNode();
+  InputLatticeNode()
+	:m_range(NOT_FOUND, NOT_FOUND)
+  {}
   InputLatticeNode(const Phrase &phrase, const WordsRange &range)
     :m_phrase(phrase)
     ,m_range(range) {
@@ -72,6 +74,9 @@ public:
 
   void SetTargetPhrases(const TargetPhraseCollection *targetPhrases) {
     m_targetPhrases = targetPhrases;
+  }
+  const TargetPhraseCollection *GetTargetPhrases() const {
+    return m_targetPhrases;
   }
 
 };
@@ -93,6 +98,9 @@ class TranslationOptionCollection
 {
   friend std::ostream& operator<<(std::ostream& out, const TranslationOptionCollection& coll);
   TranslationOptionCollection(const TranslationOptionCollection&); /*< no copy constructor */
+public:
+  typedef std::vector< std::vector<InputLatticeNode> > TargetPhraseMatrix;
+
 protected:
   std::vector< std::vector< TranslationOptionList > >	m_collection; /*< contains translation options */
   InputType const			&m_source; /*< reference to the input */
@@ -102,10 +110,7 @@ protected:
   std::vector<Phrase*> m_unksrcs;
 
   std::vector<InputLatticeNode*> m_SourcePaths;
-
-  typedef std::vector< std::vector<InputLatticeNode> > TargetPhraseMatrix;
-  std::map<const PhraseDictionary*,
-      std::vector< std::vector<const TargetPhraseCollection*> > >	m_targetPhrasesfromPt; /*< contains translation options */
+  std::map<const PhraseDictionary*, TargetPhraseMatrix>	m_targetPhrasesfromPt; /*< contains translation options */
 
   TranslationOptionCollection(InputType const& src, size_t maxNoTransOptPerCoverage,
                               float translationOptionThreshold);

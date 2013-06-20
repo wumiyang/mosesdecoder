@@ -106,7 +106,7 @@ void DecodeStepTranslation::Process(const TranslationOption &inputPartialTranslO
                                     , TranslationOptionCollection *toc
                                     , bool adhereTableLimit
                                     , const Phrase &src
-                                    , const std::vector< std::vector<const TargetPhraseCollection*> > &targetPhraseMatrix) const
+                                    , const TranslationOptionCollection::TargetPhraseMatrix &targetPhraseMatrix) const
 {
   if (inputPartialTranslOpt.GetTargetPhrase().GetSize() == 0) {
     // word deletion
@@ -126,10 +126,10 @@ void DecodeStepTranslation::Process(const TranslationOption &inputPartialTranslO
   size_t offset = sourceWordsRange.GetEndPos() - sourceWordsRange.GetStartPos();
 
   assert(sourceWordsRange.GetStartPos() < targetPhraseMatrix.size());
-  const std::vector<const TargetPhraseCollection*> &inner = targetPhraseMatrix[sourceWordsRange.GetStartPos()];
+  const std::vector<InputLatticeNode> &inner = targetPhraseMatrix[sourceWordsRange.GetStartPos()];
 
   assert(offset < inner.size());
-  const TargetPhraseCollection *phraseColl = inner[offset];
+  const TargetPhraseCollection *phraseColl = inner[offset].GetTargetPhrases();
 
   if (phraseColl != NULL) {
     TargetPhraseCollection::const_iterator iterTargetPhrase, iterEnd;
@@ -199,7 +199,7 @@ void DecodeStepTranslation::ProcessInitialTranslation(
 }
 
 void DecodeStepTranslation::ProcessInitialTranslation(
-  const std::vector< std::vector<const TargetPhraseCollection*> > &targetPhraseMatrix
+  const TranslationOptionCollection::TargetPhraseMatrix &targetPhraseMatrix
   , PartialTranslOptColl &outputPartialTranslOptColl
   , const WordsRange &range, bool adhereTableLimit) const
 {
@@ -212,10 +212,10 @@ void DecodeStepTranslation::ProcessInitialTranslation(
   size_t offset = range.GetEndPos() - range.GetStartPos();
 
   assert(range.GetStartPos() < targetPhraseMatrix.size());
-  const std::vector<const TargetPhraseCollection*> &inner = targetPhraseMatrix[range.GetStartPos()];
+  const std::vector<InputLatticeNode> &inner = targetPhraseMatrix[range.GetStartPos()];
 
   assert(offset < inner.size());
-  const TargetPhraseCollection *phraseColl = inner[offset];
+  const TargetPhraseCollection *phraseColl = inner[offset].GetTargetPhrases();
 
   if (phraseColl != NULL) {
     VERBOSE(3, "[" << range.GetStartPos() << "-" << range.GetEndPos() << "]" << std::endl);

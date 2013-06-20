@@ -591,19 +591,17 @@ void TranslationOptionCollection::AddTargetPhraseFromPtMatrix(const PhraseDictio
   // create 2-d vector
   size_t size = m_source.GetSize();
 
-  std::vector< std::vector<const TargetPhraseCollection*> > temp;
-  std::vector< std::vector<const TargetPhraseCollection*> > &matrix
-  = m_targetPhrasesfromPt[&phraseDictionary] = temp;
+  TargetPhraseMatrix &matrix = m_targetPhrasesfromPt[&phraseDictionary];
 
   for (size_t startPos = 0 ; startPos < size ; ++startPos) {
-    matrix.push_back( vector<const TargetPhraseCollection*>() );
+    matrix.push_back( vector<InputLatticeNode>() );
 
     size_t maxSize = size - startPos;
     //size_t maxSizePhrase = StaticData::Instance().GetMaxPhraseLength();
     //maxSize = std::min(maxSize, maxSizePhrase);
 
     for (size_t endPos = 0 ; endPos < maxSize ; ++endPos) {
-      matrix[startPos].push_back( NULL );
+      matrix[startPos].push_back(InputLatticeNode());
     }
   }
 }
@@ -660,13 +658,13 @@ void TranslationOptionCollection::SetTargetPhraseFromPtMatrix(const TargetPhrase
   assert(range.GetEndPos() >=range.GetStartPos());
   size_t offset = range.GetEndPos() - range.GetStartPos();
 
-  std::vector< std::vector<const TargetPhraseCollection*> > &outer = m_targetPhrasesfromPt[&phraseDictionary];
+  TargetPhraseMatrix &outer = m_targetPhrasesfromPt[&phraseDictionary];
 
   assert(range.GetStartPos() < outer.size());
-  std::vector<const TargetPhraseCollection*> &inner = outer[range.GetStartPos()];
+  std::vector<InputLatticeNode> &inner = outer[range.GetStartPos()];
 
   assert(offset < inner.size());
-  inner[offset] = phraseColl;
+  inner[offset].SetTargetPhrases(phraseColl);
 }
 
 const TargetPhraseCollection *TranslationOptionCollection::GetTargetPhraseFromPtMatrix(const PhraseDictionary &phraseDictionary, const WordsRange &range) const
@@ -676,16 +674,16 @@ const TargetPhraseCollection *TranslationOptionCollection::GetTargetPhraseFromPt
   assert(range.GetEndPos() >=range.GetStartPos());
   size_t offset = range.GetEndPos() - range.GetStartPos();
 
-  std::map<const PhraseDictionary*, std::vector< std::vector<const TargetPhraseCollection*> > >::const_iterator iterOuter;
+  std::map<const PhraseDictionary*, TargetPhraseMatrix>::const_iterator iterOuter;
   iterOuter = m_targetPhrasesfromPt.find(&phraseDictionary);
   CHECK(iterOuter != m_targetPhrasesfromPt.end());
-  const std::vector< std::vector<const TargetPhraseCollection*> > &outer = iterOuter->second;
+  const TargetPhraseMatrix &outer = iterOuter->second;
 
   assert(range.GetStartPos() < outer.size());
-  const std::vector<const TargetPhraseCollection*> &inner = outer[range.GetStartPos()];
+  const std::vector<InputLatticeNode> &inner = outer[range.GetStartPos()];
 
   assert(offset < inner.size());
-  return inner[offset];
+  return inner[offset].GetTargetPhrases();
 }
 } // namespace
 
