@@ -82,9 +82,8 @@ public:
 
   void Prune(bool adhereTableLimit, size_t tableLimit);
   void Sort(bool adhereTableLimit, size_t tableLimit);
-  void Clear()
-  {
-	  RemoveAllInColl(m_collection);
+  void Clear() {
+    RemoveAllInColl(m_collection);
   }
 
 };
