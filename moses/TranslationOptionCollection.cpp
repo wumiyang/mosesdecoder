@@ -40,7 +40,6 @@ using namespace std;
 
 namespace Moses
 {
-
 /** helper for pruning */
 bool CompareTranslationOption(const TranslationOption *a, const TranslationOption *b)
 {

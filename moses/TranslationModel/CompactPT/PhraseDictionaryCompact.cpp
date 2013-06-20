@@ -41,6 +41,17 @@ using namespace std;
 namespace Moses
 {
 
+PhraseDictionaryCompact::PhraseDictionaryCompact(const std::string &line)
+  :PhraseDictionary("PhraseDictionaryCompact", line)
+  ,m_inMemory(true)
+  ,m_useAlignmentInfo(true)
+  ,m_hash(10, 16)
+  ,m_phraseDecoder(0)
+  ,m_weight(0)
+{
+  ReadParameters();
+}
+
 void PhraseDictionaryCompact::Load()
 {
   const StaticData &staticData = StaticData::Instance();
