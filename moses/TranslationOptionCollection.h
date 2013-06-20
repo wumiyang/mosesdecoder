@@ -54,8 +54,10 @@ class InputLatticeNode
 protected:
   Phrase m_phrase;
   WordsRange m_range;
+  const TargetPhraseCollection *m_targetPhrases;
 
 public:
+  InputLatticeNode();
   InputLatticeNode(const Phrase &phrase, const WordsRange &range)
     :m_phrase(phrase)
     ,m_range(range) {
@@ -66,6 +68,10 @@ public:
   }
   const WordsRange &GetWordsRange() const {
     return m_range;
+  }
+
+  void SetTargetPhrases(const TargetPhraseCollection *targetPhrases) {
+    m_targetPhrases = targetPhrases;
   }
 
 };
@@ -96,6 +102,8 @@ protected:
   std::vector<Phrase*> m_unksrcs;
 
   std::vector<InputLatticeNode*> m_SourcePaths;
+
+  typedef std::vector< std::vector<InputLatticeNode> > TargetPhraseMatrix;
   std::map<const PhraseDictionary*,
       std::vector< std::vector<const TargetPhraseCollection*> > >	m_targetPhrasesfromPt; /*< contains translation options */
 

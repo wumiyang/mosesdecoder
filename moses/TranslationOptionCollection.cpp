@@ -642,7 +642,7 @@ void TranslationOptionCollection::SetTargetPhraseFromPtMatrix(const PhraseDictio
       }
     }
 
-    doIt = true;
+    doIt = true; // TODO HACK
     if (doIt) {
       const Phrase &phrase = node.GetPhrase();
       const TargetPhraseCollection *phraseColl = phraseDictionary.GetTargetPhraseCollection(phrase);
