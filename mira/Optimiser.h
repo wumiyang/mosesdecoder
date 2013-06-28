@@ -65,16 +65,21 @@ namespace Mira {
   MiraOptimiser() :
     Optimiser() { }
     
-  MiraOptimiser(
-	float slack, bool scale_margin, bool scale_margin_precision,
-	bool scale_update, bool scale_update_precision, bool boost, bool normaliseMargin, float sigmoidParam) :
+  MiraOptimiser(float slack) :
+      Optimiser(),
+      m_slack(slack),
+      m_scale_margin(false),
+      m_scale_update(false),
+      m_boost(1.0),
+      m_normaliseMargin(false),
+      m_sigmoidParam(1.0) { }
+
+  MiraOptimiser(float slack, bool scale_margin, bool scale_update, 
+		float boost, bool normaliseMargin, float sigmoidParam) :
       Optimiser(),
       m_slack(slack),
       m_scale_margin(scale_margin),
-      m_scale_margin_precision(scale_margin_precision),
       m_scale_update(scale_update),
-      m_scale_update_precision(scale_update_precision),
-      m_precision(1),
       m_boost(boost),
       m_normaliseMargin(normaliseMargin),
       m_sigmoidParam(sigmoidParam) { }
@@ -143,25 +148,21 @@ namespace Mira {
      void setSlack(float slack) {
        m_slack = slack;
      }
-     
-     void setPrecision(float precision) {
-       m_precision = precision;
-     }
-     
+          
   private:
+     float sigmoid(float x);
+     
      // regularise Hildreth updates
      float m_slack;
      
-     // scale margin with BLEU score or precision
-     bool m_scale_margin, m_scale_margin_precision;
+     // scale margin with BLEU score
+     bool m_scale_margin;
      
-     // scale update with oracle BLEU score or precision
-     bool m_scale_update, m_scale_update_precision;
-     
-     float m_precision;
+     // scale update with oracle BLEU score
+     bool m_scale_update;
      
      // boosting of updates on misranked candidates
-     bool m_boost;
+     float m_boost;
      
      // squash margin between 0 and 1 (or depending on m_sigmoidParam)
      bool m_normaliseMargin;

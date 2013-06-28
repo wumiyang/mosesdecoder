@@ -137,14 +137,14 @@ namespace Mira {
   														SearchAlgorithm& search,
   														const TranslationSystem& system,
   														string filename) {
-  	// run the decoder
+    // run the decoder
     m_manager = new Moses::Manager(0,*m_sentence, search, &system);
     m_manager->ProcessSentence();
     TrellisPathList nBestList;
     m_manager->CalcNBest(nBestSize, nBestList, distinct);
     
     // optionally print nbest to file (to extract scores and features.. currently just for sentence bleu scoring)
-    if (filename != "") {
+    /*if (filename != "") {
     	ofstream out(filename.c_str());
     	if (!out) {
     		ostringstream msg;
@@ -154,7 +154,7 @@ namespace Mira {
     	// TODO: handle sentence id (for now always 0)
     	//OutputNBest(out, nBestList, StaticData::Instance().GetOutputFactorOrder(),m_manager->GetTranslationSystem(), 0, false);
     	out.close();
-    }
+    }*/
 
     // read off the feature values and bleu scores for each sentence in the nbest list
     Moses::TrellisPathList::const_iterator iter;
@@ -214,7 +214,7 @@ namespace Mira {
                               size_t rank,
                               size_t epoch,
                               const TranslationSystem& system) {
-  	// run the decoder
+    // run the decoder
     m_chartManager = new ChartManager(*m_sentence, &system);
     m_chartManager->ProcessSentence();
     ChartTrellisPathList nBestList;

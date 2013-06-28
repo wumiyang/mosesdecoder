@@ -1,11 +1,18 @@
 #include "Optimiser.h"
 #include "Hildreth.h"
 #include "moses/StaticData.h"
+#include "math.h"
 
 using namespace Moses;
 using namespace std;
 
 namespace Mira {
+
+float MiraOptimiser::sigmoid(float x) {
+  float base = 1.1;
+  return 2 * m_sigmoidParam/(1 + pow(base,-x)) - m_sigmoidParam;
+  //return (2 * m_sigmoidParam/(1 + exp(-x))) - m_sigmoidParam;  
+} 
 
 size_t MiraOptimiser::updateWeights(
 		ScoreComponentCollection& weightUpdate,
@@ -61,8 +68,10 @@ size_t MiraOptimiser::updateWeights(
 		    	violated = true;
 		    
 		    if (m_normaliseMargin) {
-		      modelScoreDiff = (2*m_sigmoidParam/(1 + exp(-modelScoreDiff))) - m_sigmoidParam;
-		      loss = (2*m_sigmoidParam/(1 + exp(-loss))) - m_sigmoidParam;
+		      //modelScoreDiff = (2*m_sigmoidParam/(1 + exp(-modelScoreDiff))) - m_sigmoidParam;
+		      modelScoreDiff = sigmoid(modelScoreDiff);
+		      //loss = (2*m_sigmoidParam/(1 + exp(-loss))) - m_sigmoidParam;
+		      loss = sigmoid(loss);
 		      diff = 0;
 		      if (loss > modelScoreDiff) {
 			diff = loss - modelScoreDiff;
@@ -71,7 +80,7 @@ size_t MiraOptimiser::updateWeights(
 		    }
 		    		    
 		    if (m_scale_margin) {
-		      diff *= oracleBleuScores[i];
+		      diff *= (1 + oracleBleuScores[i]);
 		      cerr << "Rank " << rank << ", epoch " << epoch << ", scaling margin with oracle bleu score "  << oracleBleuScores[i] << endl;
 		    }
 
@@ -100,9 +109,10 @@ size_t MiraOptimiser::updateWeights(
 	  // Update the weight vector according to the alphas and the feature value differences
 	  // * w' = w' + SUM alpha_i * (h_i(oracle) - h_i(hypothesis))
 	  for (size_t k = 0; k < featureValueDiffs.size(); ++k) {
-	  	float alpha = alphas[k];
-	  	cerr << "Rank " << rank << ", epoch " << epoch << ", alpha: " << alpha << endl;
-	  	ScoreComponentCollection update(featureValueDiffs[k]);
+	    float alpha = alphas[k];
+	    cerr << "Rank " << rank << ", epoch " << epoch << ", alpha: " << alpha << endl;
+
+	    ScoreComponentCollection update(featureValueDiffs[k]);
 	    update.MultiplyEquals(alpha);
 	    
 	    // sum updates
@@ -125,7 +135,7 @@ size_t MiraOptimiser::updateWeights(
 	if (oracleBleuScores.size() == 1) {
 		if (m_scale_update) {
 			cerr << "Rank " << rank << ", epoch " << epoch << ", scaling summed update with oracle bleu score " << oracleBleuScores[0] << endl;
-			summedUpdate.MultiplyEquals(oracleBleuScores[0]);
+			summedUpdate.MultiplyEquals(1 + oracleBleuScores[0]);
 		}
 	}
 
@@ -211,8 +221,10 @@ size_t MiraOptimiser::updateWeightsHopeFear(
 	violated = true;
 	    
       if (m_normaliseMargin) {
-	modelScoreDiff = (2*m_sigmoidParam/(1 + exp(-modelScoreDiff))) - m_sigmoidParam;
-	loss = (2*m_sigmoidParam/(1 + exp(-loss))) - m_sigmoidParam;
+	//modelScoreDiff = (2*m_sigmoidParam/(1 + exp(-modelScoreDiff))) - m_sigmoidParam;
+	modelScoreDiff = sigmoid(modelScoreDiff);
+	//loss = (2*m_sigmoidParam/(1 + exp(-loss))) - m_sigmoidParam;
+	loss = sigmoid(loss);
 	diff = 0;
 	if (loss > modelScoreDiff) {
 	  diff = loss - modelScoreDiff;
@@ -221,7 +233,7 @@ size_t MiraOptimiser::updateWeightsHopeFear(
       }
       
       if (m_scale_margin) {
-	diff *= bleuScoresHope[i][j];
+	diff *= (1 + bleuScoresHope[i][j]);
 	cerr << "Rank " << rank << ", epoch " << epoch << ", scaling margin with oracle bleu score "  << bleuScoresHope[i][j] << endl;
       }
       
@@ -255,12 +267,9 @@ size_t MiraOptimiser::updateWeightsHopeFear(
       cerr << "Rank " << rank << ", epoch " << epoch << ", alpha: " << alpha << endl;
       if (alpha != 0) {
 	// apply boosting factor
-	if (m_boost && modelScoreDiffs[k] <= 0) {
-	  // factor between 1.5 and 3 (for Bleu scores between 5 and 20, the factor is within the boundaries)
-	  float factor = min(1.5, log2(bleuScoresHope[0][0])); // TODO: make independent of number of oracles!!
-	  factor = min(3.0f, factor);
-	  alpha = alpha * factor;
-	  cerr << "Rank " << rank << ", epoch " << epoch << ", apply boosting factor " << factor << " to update." << endl;
+	if (m_boost > 1.0 && modelScoreDiffs[k] <= 0) {
+	  alpha = alpha * m_boost;
+	  cerr << "Rank " << rank << ", epoch " << epoch << ", apply boosting factor " << m_boost << " to alpha: " << alpha << endl;
 	}
 	
 	ScoreComponentCollection update(featureValueDiffs[k]);
@@ -287,7 +296,7 @@ size_t MiraOptimiser::updateWeightsHopeFear(
   if (featureValuesHope.size() == 1) {
     if (m_scale_update) {
       cerr << "Rank " << rank << ", epoch " << epoch << ", scaling summed update with oracle bleu score " << bleuScoresHope[0][0] << endl;
-      summedUpdate.MultiplyEquals(bleuScoresHope[0][0]);
+      summedUpdate.MultiplyEquals(1 + bleuScoresHope[0][0]);
     }
   }
   
@@ -347,20 +356,18 @@ size_t MiraOptimiser::updateWeightsAnalytically(
   cerr << "Rank " << rank << ", epoch " << epoch << ", constraint: " << modelScoreDiff << " >= " << loss << " (current violation: " << diff << ")" << endl;
 
   if (m_normaliseMargin) {
-    modelScoreDiff = (2*m_sigmoidParam/(1 + exp(-modelScoreDiff))) - m_sigmoidParam;
-    loss = (2*m_sigmoidParam/(1 + exp(-loss))) - m_sigmoidParam;
+    //modelScoreDiff = (2*m_sigmoidParam/(1 + exp(-modelScoreDiff))) - m_sigmoidParam;
+    modelScoreDiff = sigmoid(modelScoreDiff);
+    //loss = (2*m_sigmoidParam/(1 + exp(-loss))) - m_sigmoidParam;
+    loss = sigmoid(loss);
     if (loss > modelScoreDiff) 
       diff = loss - modelScoreDiff;
     cerr << "Rank " << rank << ", epoch " << epoch << ", normalised constraint: " << modelScoreDiff << " >= " << loss << " (current violation: " << diff << ")" << endl;
   }
   
   if (m_scale_margin) {
-	  diff *= bleuScoreHope;
+    diff *= (1 + bleuScoreHope);
 	  cerr << "Rank " << rank << ", epoch " << epoch << ", scaling margin with oracle bleu score "  << bleuScoreHope << endl;
-  }
-  if (m_scale_margin_precision) {
-	  diff *= (1+m_precision);
-	  cerr << "Rank " << rank << ", epoch " << epoch << ", scaling margin with 1+precision: "  << (1+m_precision) << endl;
   }
 
   if (diff > epsilon) {
@@ -398,22 +405,15 @@ size_t MiraOptimiser::updateWeightsAnalytically(
     
     if (m_scale_update) {
   	  cerr << "Rank " << rank << ", epoch " << epoch << ", scaling update with oracle bleu score " << bleuScoreHope << endl;
-  	  alpha *= bleuScoreHope;
-    }
-    if (m_scale_update_precision) {
-  	  cerr << "Rank " << rank << ", epoch " << epoch << ", scaling update with 1+precision: " << (1+m_precision) << endl;
-  	  alpha *= (1+m_precision);	
+  	  alpha *= (1 + bleuScoreHope);
     }
     
     cerr << "Rank " << rank << ", epoch " << epoch << ", clipped/scaled alpha: " << alpha << endl;
 
     // apply boosting factor
-    if (m_boost && modelScoreDiff <= 0) {
-    	// factor between 1.5 and 3 (for Bleu scores between 5 and 20, the factor is within the boundaries)
-    	float factor = min(1.5, log2(bleuScoreHope));
-    	factor = min(3.0f, factor);
-    	alpha = alpha * factor;
-    	cerr << "Rank " << rank << ", epoch " << epoch << ", boosted alpha: " << alpha << endl;
+    if (m_boost > 1.0 && modelScoreDiff <= 0) {
+    	alpha = alpha * m_boost;
+	cerr << "Rank " << rank << ", epoch " << epoch << ", apply boosting factor " << m_boost << " to alpha: " << alpha << endl;
     }
 
     featureValueDiff.MultiplyEquals(alpha);
@@ -538,14 +538,16 @@ size_t MiraOptimiser::updateWeightsHopeFearSelective(
         lossMinusModelScoreDiffs.push_back(diff/n);      
       for (size_t i=0; i<n_sparse_hope; ++i) {
 	nonZeroFeatures.push_back(nonZeroFeaturesHope[i]);
-        lossMinusModelScoreDiffs.push_back((diff/n)*1.1);
+        //lossMinusModelScoreDiffs.push_back((diff/n)*1.1);
+	lossMinusModelScoreDiffs.push_back(diff/n);
       }
       for (size_t i=0; i<n_sparse_fear; ++i) {
 	nonZeroFeatures.push_back(nonZeroFeaturesFear[i]);
 	lossMinusModelScoreDiffs.push_back(diff/n);
       }
       cerr << "Rank " << rank << ", epoch " << epoch << ", core diff: " << diff/n << endl;
-      cerr << "Rank " << rank << ", epoch " << epoch << ", hope diff: " << ((diff/n)*1.1) << endl;
+      //cerr << "Rank " << rank << ", epoch " << epoch << ", hope diff: " << ((diff/n)*1.1) << endl;
+      cerr << "Rank " << rank << ", epoch " << epoch << ", hope diff: " << diff/n << endl;
       cerr << "Rank " << rank << ", epoch " << epoch << ", fear diff: " << diff/n << endl;
     }
   }
@@ -589,7 +591,7 @@ size_t MiraOptimiser::updateWeightsHopeFearSelective(
   if (featureValuesHope.size() == 1) {
     if (m_scale_update) {
       cerr << "Rank " << rank << ", epoch " << epoch << ", scaling summed update with oracle bleu score " << bleuScoresHope[0][0] << endl;
-      summedUpdate.MultiplyEquals(bleuScoresHope[0][0]);
+      summedUpdate.MultiplyEquals(1 + bleuScoresHope[0][0]);
     }
   }
   
